@@ -1,7 +1,5 @@
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
-from tartiflette.executors.types import Info
-from tartiflette.types.exceptions.tartiflette import NullError, InvalidValue
 from tartiflette.types.type import GraphQLType
 
 
@@ -17,8 +15,30 @@ class GraphQLList(GraphQLType):
         gql_type: Union[str, GraphQLType],
         description: Optional[str] = None,
     ):
-        super().__init__(name=None, description=description)
+        super().__init__(name=None, description=description, is_list=True)
         self.gql_type = gql_type
+
+    @property
+    def is_enum_value(self) -> bool:
+        ret = False
+
+        try:
+            ret = self.gql_type.is_enum_value
+        except AttributeError:
+            pass
+
+        return ret
+
+    @property
+    def is_not_null(self) -> bool:
+        ret = False
+
+        try:
+            ret = self.gql_type.is_not_null
+        except AttributeError:
+            pass
+
+        return ret
 
     def __repr__(self) -> str:
         return "{}(gql_type={!r}, description={!r})".format(
@@ -30,26 +50,3 @@ class GraphQLList(GraphQLType):
 
     def __eq__(self, other):
         return super().__eq__(other) and self.gql_type == other.gql_type
-
-    def coerce_value(self, value: Any, info: Info) -> Any:
-        if value is None:
-            return value
-        try:
-            results = []
-            for index, item in enumerate(value):
-                try:
-                    results.append(self.gql_type.coerce_value(
-                        item, info.clone_with_path(index)
-                    ))
-                except NullError as e:
-                    info.execution_ctx.add_error(e)
-                    return None
-                except InvalidValue as e:
-                    results.append(None)
-                    info.execution_ctx.add_error(e)
-            return results
-        except TypeError:
-            # GraphQLList accepts values of 1 element
-            # see the GraphQL.js implementation
-            pass
-        return [self.gql_type.coerce_value(value, info)]

@@ -117,3 +117,27 @@ async def resolver_human(_, arguments, __, ___):
 @Resolver("Query.droid", schema=STARWARSTIFLETTE.schema)
 async def resolver_droid(_, arguments, __, ___):
     return _DROID_DATA[arguments["id"]]
+
+
+# TODO delete when "implement" for sdl is supported on resolver finding.
+@Resolver("Human.appearsIn", schema=STARWARSTIFLETTE.schema)
+async def resolver_human_appear_in(parent_result, *_, **__):
+    return appears_in(parent_result["appearsIn"])
+
+
+# TODO delete when "implement" for sdl is supported on resolver finding.
+@Resolver("Droid.appearsIn", schema=STARWARSTIFLETTE.schema)
+async def resolver_droid_appear_in(parent_result, *_, **__):
+    return appears_in(parent_result["appearsIn"])
+
+
+# TODO delete when "implement" for sdl is supported on resolver finding.
+@Resolver("Droid.friends", schema=STARWARSTIFLETTE.schema)
+async def resolver_droid_friends(parent_result, *_, **__):
+    return friends(parent_result["friends"])
+
+
+# TODO delete when "implement" for sdl is supported on resolver finding.
+@Resolver("Human.friends", schema=STARWARSTIFLETTE.schema)
+async def resolver_human_friends(parent_result, *_, **__):
+    return friends(parent_result["friends"])
